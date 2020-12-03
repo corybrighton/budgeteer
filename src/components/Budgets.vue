@@ -1,5 +1,5 @@
 <template>
-  <h1>Budget</h1>
+  <h1><i class="fas fa-piggy-bank"></i> Budget</h1>
 </template>
 
 <script lang="ts">

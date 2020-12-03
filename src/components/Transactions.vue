@@ -1,5 +1,5 @@
 <template>
-  <h1>Transactions</h1>
+  <h1><i class="fas fa-cash-register"></i> Transactions</h1>
 </template>
 
 <script lang="ts">

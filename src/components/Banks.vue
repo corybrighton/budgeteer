@@ -1,5 +1,5 @@
 <template>
-  <h1>Banks</h1>
+  <h1> <i class="fas fa-university"></i> Banks</h1>
 </template>
 
 <script lang="ts">
