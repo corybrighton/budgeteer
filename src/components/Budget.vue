@@ -3,10 +3,10 @@
 </template>
 
 <script lang="ts">
-  import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue } from "vue-property-decorator";
 
-  @Component
-  export default class Budget extends Vue {
-    
-  }
+@Component
+export default class Budget extends Vue {
+  private budgets: Budget = new Budget();
+}
 </script>
