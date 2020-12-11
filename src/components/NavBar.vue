@@ -1,16 +1,20 @@
 <template>
   <div class="container-fluid">
-    <div class="d-flex justify-content-end fixed-bottom row">
-      <div class="col-8 center" v-show="isNavOpen">
-        <div v-for="n in navigate" :key=n @click="navToPage(n.name)">
+    <div class="d-flex justify-content-end fixed-bottom row primary py-2">
+    <div class="col-3 d-flex align-items-end"><img src="../assets/BudgeteerLogo.png"></div>
+      <div class="col-5"></div>
+      <div class="col-3 pt-2">
+        <div v-for="n in navigate" :key=n @click="navToPage(n.name)" v-show="isNavOpen">
           <h4><i :class=n.icon></i> {{ n.name }}</h4>
         </div>
       </div>
-      <div class="col-1 row">
-        <button @click="openCloseNav">
-          <i class="fas fa-times" v-if="isNavOpen"></i>
-          <i class="fas fa-bars" v-else></i>
-        </button>
+      <div class="col-1 pb-2 row">
+        <div class="d-flex align-items-end">
+          <button class="btn secondary btn-lg" @click="openCloseNav">
+            <i class="fas fa-times" v-if="isNavOpen"></i>
+            <i class="fas fa-bars" v-else></i>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -92,4 +96,5 @@ export default class NavBar extends Vue {
 
 <style scoped>
  h4:hover{cursor: pointer}
+ img{max-height: 65px;}
 </style>
