@@ -50,7 +50,7 @@ import Snowball from "./Snowball.vue";
   },
 })
 export default class NavBar extends Vue {
-  private activePage = "home";
+  private activePage = "Budgets";
   private isNavOpen = false;
   private navigate = [
     {
