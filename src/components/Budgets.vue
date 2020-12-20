@@ -1,19 +1,18 @@
 <template>
   <div class="row">
 
-    <h1 class="col-12"><i class="fas fa-piggy-bank"></i> Budget</h1>
+    <div class="d-flex justify-content-center col-12 pt-3">
+    <h1><i class="fas fa-piggy-bank"></i> Budget -> {{ (budgetTotal ) }}</h1>
+    </div>
       <div class="col-2 py-2" v-for="(b, index) in budgetInfo" :key="index">
-        <div class="card h-100 d-flex justify-content-center">
-            <h1 class="d-flex justify-content-center py-4" :class="[(b.amount >= b.amountUsed)? 'good' : 'over']"><i class="large fas fa-piggy-bank"></i></h1>
-          <div class="card-body flex-column d-flex justify-content-between align-items-center">
-            <div>
-              {{b.name}}
+        <div class="card h-100">
+          <div class="flex-column d-flex align-items-center py-3" :class="[(b.amount >= b.amountUsed)? 'good' : 'over']">
+            <div><h6><strong>{{b.name}}</strong></h6></div>
+            <div class="d-flex">
+              <h1><i class="large fas fa-piggy-bank"></i></h1>
+              <i v-show="b.recurring" class="fas fa-sync-alt"></i>
             </div>
-            <div>
-              <strong>
-                ${{ b.amount - b.amountUsed}}
-              </strong>
-            </div>
+            <div><strong>${{ (b.amount - b.amountUsed).toFixed(2)}}</strong></div>
           </div>
         </div>
       </div>
@@ -27,14 +26,16 @@
   @Component
   export default class Budgets extends Vue {
     isInBudget = true;
+    budgetTotal = 3700;
     budgetInfo: BudgetData[] = [
-      {name: "Giving", amount: 1200, amountUsed: 300}, 
-      {name: "Fixed Giving Expenses", amount: 2500, amountUsed: 300}, 
-      {name: "Debt Payment", amount: 800, amountUsed: 300}, 
-      {name: "Living Expenses", amount: 500, amountUsed: 300}, 
-      {name: "Just for Fun", amount: 500, amountUsed: 300}, 
-      {name: "Savings Goals", amount: 1900, amountUsed: 300}, 
-      {name: "Unexpected Expenses", amount: 100, amountUsed: 300}
+      {name: "Giving", amount: 1200, amountUsed: 158.44, recurring: false}, 
+      {name: "Fixed Expenses", amount: 2610, amountUsed: 347.11, recurring: true}, 
+      {name: "Debt Payment", amount: 850, amountUsed: 251.31, recurring: false}, 
+      {name: "Living Expenses", amount: 500, amountUsed: 455.2, recurring: false}, 
+      {name: "Just for Fun", amount: 500, amountUsed: 105.55, recurring: false}, 
+      {name: "Savings Goals", amount: 1900, amountUsed: 1830.51, recurring: false}, 
+      {name: "Goals", amount: 600, amountUsed: 743.51, recurring: true}, 
+      {name: "Unexpected Expenses", amount: 100, amountUsed: 370.8, recurring: false}
       ]
   }
 </script>
@@ -42,15 +43,22 @@
 <style scoped>
   .good {
     background-color: #2e4c2c;
-    color :#fff;
   }
 
   .over {
     background-color: firebrick;
-    color: #fff;
   }
 
   .large {
     font-size: 2.6em;
+  }
+
+  .good, .over {
+    border-radius: 50px;
+    color: #fff;
+  }
+
+  .card {
+    border-radius: 50px;
   }
 </style>
