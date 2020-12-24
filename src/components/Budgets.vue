@@ -2,7 +2,7 @@
   <div class="row">
 
     <div class="d-flex justify-content-center col-12 pt-3">
-    <h1><i class="fas fa-piggy-bank"></i> Budget -> {{ (budgetTotal ) }}</h1>
+    <h1><i class="fas fa-piggy-bank"></i> Budget ~> {{ (budgetTotal - totalAmountBudgeted()) }}</h1>
     </div>
       <div class="col-2 py-2" v-for="(b, index) in budgetInfo" :key="index">
         <div class="card h-100">
@@ -12,7 +12,9 @@
               <h1><i class="large fas fa-piggy-bank"></i></h1>
               <i v-show="b.recurring" class="fas fa-sync-alt"></i>
             </div>
-            <div><strong>${{ (b.amount - b.amountUsed).toFixed(2)}}</strong></div>
+            <div>
+              <i class="fas fa-plus-square"></i>
+              <strong @click="addFundsToBudget" class="pl-3">${{ (b.amount - b.amountUsed).toFixed(2)}}</strong></div>
           </div>
         </div>
       </div>
@@ -37,6 +39,16 @@
       {name: "Goals", amount: 600, amountUsed: 743.51, recurring: true}, 
       {name: "Unexpected Expenses", amount: 100, amountUsed: 370.8, recurring: false}
       ]
+
+      addFundsToBudget(){
+        return
+      }
+
+      totalAmountBudgeted(){
+        let t = 0;
+        this.budgetInfo.forEach( b => t += b.amount );
+        return t;
+      }
   }
 </script>
 
