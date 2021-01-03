@@ -2,19 +2,26 @@
   <div class="row">
 
     <div class="d-flex justify-content-center col-12 pt-3">
-    <h1><i class="fas fa-piggy-bank"></i> Budget ~> {{ (budgetTotal - totalAmountBudgeted()) }}</h1>
+    <h1><i class="fas fa-piggy-bank"></i> Budget ~> {{ budgetTotal }}</h1>
     </div>
-      <div class="col-2 py-2" v-for="(b, index) in budgetInfo" :key="index">
+      <div class="col-2 py-2" v-for="b in budgetInfo" :key=b.name >
         <div class="card h-100">
           <div class="flex-column d-flex align-items-center py-3" :class="[(b.amount >= b.amountUsed)? 'good' : 'over']">
-            <div><h6><strong>{{b.name}}</strong></h6></div>
-            <div class="d-flex">
+            <div class="pointer"><h6><strong>{{b.name}}</strong></h6></div>
+            <div class="d-flex pointer">
               <h1><i class="large fas fa-piggy-bank"></i></h1>
               <i v-show="b.recurring" class="fas fa-sync-alt"></i>
             </div>
             <div>
-              <i class="fas fa-plus-square"></i>
-              <strong @click="addFundsToBudget" class="pl-3">${{ (b.amount - b.amountUsed).toFixed(2)}}</strong></div>
+              <button class="btn secondary btn-xs">
+                <i class="p-2 fas fa-plus-square" @click="addFunds(b.Name)"></i>
+              </button>
+              <strong @click="addFundsToBudget" class="px-3">${{ (b.amount - b.amountUsed).toFixed(2)}}</strong>
+              <i class="p-2 fas fa-exchange-alt"></i>
+            </div>
+            <div class="d-flex flex-row p-2">
+              $ <input class="m-1">
+            </div>
           </div>
         </div>
       </div>
@@ -29,6 +36,7 @@
   export default class Budgets extends Vue {
     isInBudget = true;
     budgetTotal = 3700;
+    amountBudgeted = 0;
     budgetInfo: BudgetData[] = [
       {name: "Giving", amount: 1200, amountUsed: 158.44, recurring: false}, 
       {name: "Fixed Expenses", amount: 2610, amountUsed: 347.11, recurring: true}, 
@@ -48,6 +56,10 @@
         let t = 0;
         this.budgetInfo.forEach( b => t += b.amount );
         return t;
+      }
+
+      mounted() {
+        this.amountBudgeted = this.totalAmountBudgeted();
       }
   }
 </script>
@@ -72,5 +84,13 @@
 
   .card {
     border-radius: 50px;
+  }
+
+  .pointer{
+    cursor: pointer;
+  }
+
+  .btn-xs{
+    padding: .03125rem .0625rem;
   }
 </style>

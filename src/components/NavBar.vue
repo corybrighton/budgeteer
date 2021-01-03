@@ -4,7 +4,7 @@
     <div class="col-3 d-flex align-items-end"><img src="../assets/BudgeteerLogo.png"></div>
       <div class="col-5"></div>
       <div class="col-3 pt-2">
-        <div v-for="n in navigate" :key=n @click="navToPage(n.name)" v-show="isNavOpen">
+        <div v-for="n in navigate" :key=n.name @click="navToPage(n.name)" v-show="isNavOpen">
           <h4><i :class=n.icon></i> {{ n.name }}</h4>
         </div>
       </div>
