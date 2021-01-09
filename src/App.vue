@@ -33,4 +33,9 @@ export default class App extends Vue {}
     background-color: #ffcc6e;
     border-color: #ffcc6e;
   }
+
+  .lightColor{
+    background-color: #5a7956;
+    color: white;
+  }
 </style>

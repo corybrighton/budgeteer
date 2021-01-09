@@ -19,8 +19,13 @@
               <strong @click="addFundsToBudget" class="px-3">${{ (b.amount - b.amountUsed).toFixed(2)}}</strong>
               <i class="p-2 fas fa-exchange-alt"></i>
             </div>
-            <div class="d-flex flex-row p-2">
-              $ <input class="m-1">
+            <div class="d-flex flex-row p-2 row justify-content-center">
+              <strong class="col-1">$</strong>
+              <input class="col-5">
+              <!-- Accept add funds button -->
+              <button class="btn lightColor btn-xs mx-2"><i class="fas fa-check"></i></button>
+              <!-- Cancel Button -->
+              <button class="btn cancelColor btn-xs"><i class="fas fa-times"></i></button>
             </div>
           </div>
         </div>
@@ -73,6 +78,11 @@
     background-color: firebrick;
   }
 
+  .cancelColor {
+    background-color: red;
+    color: white;
+  }
+
   .large {
     font-size: 2.6em;
   }
@@ -91,6 +101,15 @@
   }
 
   .btn-xs{
-    padding: .03125rem .0625rem;
+    padding: .03125rem;
+    width: 2rem;
+  }
+
+  input{
+    width: fit-content;
+    border: none;
+    border-bottom: 1px solid #fff5;
+    background-color: #0000;
+    color: white;;
   }
 </style>
