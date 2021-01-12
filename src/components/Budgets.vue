@@ -2,10 +2,12 @@
   <div class="row">
 
     <div class="d-flex justify-content-center col-12 pt-3">
-    <h1><i class="fas fa-piggy-bank"></i> Budget ~> {{ budgetTotal }}</h1>
+    <h1><i class="fas fa-piggy-bank"></i> Budget ~> ${{ budgetTotal.toFixed(2) }}</h1>
     </div>
-      <div class="col-2 py-2" v-for="b in budgetInfo" :key=b.name >
-        <div class="card h-100">
+      <div class="col-2 py-2" v-for="(b, index) in budgetInfo" :key=b.name >
+        
+        <!-- Budget Card -->
+        <div class="card">
           <div class="flex-column d-flex align-items-center py-3" :class="[(b.amount >= b.amountUsed)? 'good' : 'over']">
             <div class="pointer"><h6><strong>{{b.name}}</strong></h6></div>
             <div class="d-flex pointer">
@@ -13,19 +15,28 @@
               <i v-show="b.recurring" class="fas fa-sync-alt"></i>
             </div>
             <div>
-              <button class="btn secondary btn-xs">
-                <i class="p-2 fas fa-plus-square" @click="addFunds(b.Name)"></i>
+
+              <!-- Add Funds to Budget Button -->
+              <button @click="openInputBar(b.name)" class="btn secondary btn-xs">
+                <i class="p-2 fas fa-plus-square"></i>
               </button>
-              <strong @click="addFundsToBudget" class="px-3">${{ (b.amount - b.amountUsed).toFixed(2)}}</strong>
-              <i class="p-2 fas fa-exchange-alt"></i>
+
+              <strong @click="addFundsToBudget(b.name)" class="px-3">${{ (b.amount - b.amountUsed).toFixed(2)}}</strong>
+
+              <!-- Transfer Funds to another Budget Button -->
+              <button class="btn secondary btn-xs"><i class="p-2 fas fa-exchange-alt"></i></button>
             </div>
-            <div class="d-flex flex-row p-2 row justify-content-center">
+
+            <!-- Add Funds Input Bar -->
+            <div class="d-flex flex-row p-2 row justify-content-center" v-if="showInputBar == b.name">
               <strong class="col-1">$</strong>
-              <input class="col-5">
+              <input class="col-4" v-model="transferAmount">
+
               <!-- Accept add funds button -->
-              <button class="btn lightColor btn-xs mx-2"><i class="fas fa-check"></i></button>
+              <button @click="transferBudgetFunds(index)" class="col-2 btn lightColor btn-xs mx-2"><i class="fas fa-check"></i></button>
+
               <!-- Cancel Button -->
-              <button class="btn cancelColor btn-xs"><i class="fas fa-times"></i></button>
+              <button @click="cancelBudgetTransfer()" class="col-2 btn cancelColor btn-xs"><i class="fas fa-times"></i></button>
             </div>
           </div>
         </div>
@@ -40,8 +51,10 @@
   @Component
   export default class Budgets extends Vue {
     isInBudget = true;
+    showInputBar = "bar";
     budgetTotal = 3700;
     amountBudgeted = 0;
+    transferAmount = 0;
     budgetInfo: BudgetData[] = [
       {name: "Giving", amount: 1200, amountUsed: 158.44, recurring: false}, 
       {name: "Fixed Expenses", amount: 2610, amountUsed: 347.11, recurring: true}, 
@@ -54,13 +67,25 @@
       ]
 
       addFundsToBudget(){
-        return
+        return 
+      }
+
+      openInputBar(inputName: string){
+        this.showInputBar = (this.showInputBar != inputName)? inputName : "bar";
       }
 
       totalAmountBudgeted(){
         let t = 0;
         this.budgetInfo.forEach( b => t += b.amount );
         return t;
+      }
+
+      transferBudgetFunds(indexTo: number, transferFromIndex = -1){
+        if(transferFromIndex == -1) this.budgetTotal -= this.transferAmount;
+        else this.budgetInfo[transferFromIndex].amount -= this.transferAmount;
+        this.budgetInfo[indexTo].amount += +this.transferAmount;
+        this.transferAmount = 0;
+        this.showInputBar = "bar";
       }
 
       mounted() {
