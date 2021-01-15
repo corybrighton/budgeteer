@@ -17,7 +17,7 @@
             <div>
 
               <!-- Add Funds to Budget Button -->
-              <button @click="openInputBar(b.name)" class="btn secondary btn-xs">
+              <button @click="openInputBar(b)" class="btn secondary btn-xs">
                 <i class="p-2 fas fa-plus-square"></i>
               </button>
 
@@ -56,22 +56,23 @@
     amountBudgeted = 0;
     transferAmount = 0;
     budgetInfo: BudgetData[] = [
-      {name: "Giving", amount: 1200, amountUsed: 158.44, recurring: false}, 
-      {name: "Fixed Expenses", amount: 2610, amountUsed: 347.11, recurring: true}, 
-      {name: "Debt Payment", amount: 850, amountUsed: 251.31, recurring: false}, 
-      {name: "Living Expenses", amount: 500, amountUsed: 455.2, recurring: false}, 
-      {name: "Just for Fun", amount: 500, amountUsed: 105.55, recurring: false}, 
-      {name: "Savings Goals", amount: 1900, amountUsed: 1830.51, recurring: false}, 
-      {name: "Goals", amount: 600, amountUsed: 743.51, recurring: true}, 
-      {name: "Unexpected Expenses", amount: 100, amountUsed: 370.8, recurring: false}
+      {name: "Giving", amount: 1200, amountUsed: 158.44, lastBudgetedAmount: 1200, recurring: false}, 
+      {name: "Fixed Expenses", amount: 2610, amountUsed: 347.11, lastBudgetedAmount: 2610, recurring: true}, 
+      {name: "Debt Payment", amount: 850, amountUsed: 251.31, lastBudgetedAmount: 850, recurring: false}, 
+      {name: "Living Expenses", amount: 500, amountUsed: 455.2, lastBudgetedAmount: 500, recurring: false}, 
+      {name: "Just for Fun", amount: 500, amountUsed: 105.55, lastBudgetedAmount: 500, recurring: false}, 
+      {name: "Savings Goals", amount: 1900, amountUsed: 1830.51, lastBudgetedAmount: 1900, recurring: false}, 
+      {name: "Goals", amount: 600, amountUsed: 743.51, lastBudgetedAmount: 600, recurring: true}, 
+      {name: "Unexpected Expenses", amount: 100, amountUsed: 370.8, lastBudgetedAmount: 100, recurring: false}
       ]
 
       addFundsToBudget(){
         return 
       }
 
-      openInputBar(inputName: string){
-        this.showInputBar = (this.showInputBar != inputName)? inputName : "bar";
+      openInputBar(budget: BudgetData){
+        this.showInputBar = (this.showInputBar != budget.name)? budget.name : "bar";
+        this.transferAmount = (budget.amount < budget.amountUsed)? (budget.amountUsed - budget.amount) : budget.lastBudgetedAmount;
       }
 
       totalAmountBudgeted(){
