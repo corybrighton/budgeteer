@@ -24,7 +24,7 @@
               <strong @click="addFundsToBudget(b.name)" class="px-3">${{ (b.amount - b.amountUsed).toFixed(2)}}</strong>
 
               <!-- Transfer Funds to another Budget Button -->
-              <button class="btn secondary btn-xs"><i class="p-2 fas fa-exchange-alt"></i></button>
+              <button @click="transferBudgetSelect(index)" class="btn secondary btn-xs"><i class="p-2 fas fa-exchange-alt"></i></button>
             </div>
 
             <!-- Add Funds Input Bar -->
@@ -33,7 +33,7 @@
               <input class="col-4" v-model="transferAmount">
 
               <!-- Accept add funds button -->
-              <button @click="transferBudgetFunds(index)" class="col-2 btn lightColor btn-xs mx-2"><i class="fas fa-check"></i></button>
+              <button @click="addToBudget(index)" class="col-2 btn lightColor btn-xs mx-2"><i class="fas fa-check"></i></button>
 
               <!-- Cancel Button -->
               <button @click="cancelBudgetTransfer()" class="col-2 btn cancelColor btn-xs"><i class="fas fa-times"></i></button>
@@ -55,6 +55,8 @@
     budgetTotal = 3700;
     amountBudgeted = 0;
     transferAmount = 0;
+    tBudgetFrom = -1;
+    tBudgetTo = -1;
     budgetInfo: BudgetData[] = [
       {name: "Giving", amount: 1200, amountUsed: 158.44, lastBudgetedAmount: 1200, recurring: false}, 
       {name: "Fixed Expenses", amount: 2610, amountUsed: 347.11, lastBudgetedAmount: 2610, recurring: true}, 
@@ -66,8 +68,24 @@
       {name: "Unexpected Expenses", amount: 100, amountUsed: 370.8, lastBudgetedAmount: 100, recurring: false}
       ]
 
-      addFundsToBudget(){
-        return 
+      transferBudgetSelect(budget: number){
+        if(this.tBudgetFrom == -1){
+          this.tBudgetFrom = budget;
+        }else{
+          if(this.budgetInfo[budget].amount < this.budgetInfo[this.tBudgetFrom].amount){
+            this.tBudgetTo = budget;
+          }else{
+            this.tBudgetTo = this.tBudgetFrom;
+            this.tBudgetFrom = budget;
+          }
+          this.openInputBar(this.budgetInfo[budget]);
+        }
+      }
+
+      transferFunds(bTo: number, transfer: number, bFrom = -1){
+        if(bFrom < 0) this.budgetTotal -= this.transferAmount;
+        else this.budgetInfo[bFrom].amount -= transfer;
+        this.budgetInfo[bTo].amount += transfer;
       }
 
       openInputBar(budget: BudgetData){
@@ -81,10 +99,8 @@
         return t;
       }
 
-      transferBudgetFunds(indexTo: number, transferFromIndex = -1){
-        if(transferFromIndex == -1) this.budgetTotal -= this.transferAmount;
-        else this.budgetInfo[transferFromIndex].amount -= this.transferAmount;
-        this.budgetInfo[indexTo].amount += +this.transferAmount;
+      addToBudget(indexTo: number){
+        this.transferFunds(indexTo, +this.transferAmount);
         this.transferAmount = 0;
         this.showInputBar = "bar";
       }
