@@ -24,7 +24,10 @@
               <strong @click="addFundsToBudget(b.name)" class="px-3">${{ (b.amount - b.amountUsed).toFixed(2)}}</strong>
 
               <!-- Transfer Funds to another Budget Button -->
-              <button @click="transferBudgetSelect(index)" class="btn secondary btn-xs"><i class="p-2 fas fa-exchange-alt"></i></button>
+              <button v-if="tBudgetFrom === index" class="btn secondary btn-xs"><i class="fas fa-long-arrow-alt-right"></i></button>
+              <button v-else-if="tBudgetTo === index" class="btn secondary btn-xs"><i class="fas fa-long-arrow-alt-left"></i></button>
+              <button v-else @click="transferBudgetSelect(index)" class="btn secondary btn-xs"><i class="p-2 fas fa-exchange-alt"></i></button>
+
             </div>
 
             <!-- Add Funds Input Bar -->
@@ -36,7 +39,7 @@
               <button @click="addToBudget(index)" class="col-2 btn lightColor btn-xs mx-2"><i class="fas fa-check"></i></button>
 
               <!-- Cancel Button -->
-              <button @click="cancelBudgetTransfer()" class="col-2 btn cancelColor btn-xs"><i class="fas fa-times"></i></button>
+              <button @click="cancelTransfer()" class="col-2 btn cancelColor btn-xs"><i class="fas fa-times"></i></button>
             </div>
           </div>
         </div>
@@ -72,12 +75,7 @@
         if(this.tBudgetFrom == -1){
           this.tBudgetFrom = budget;
         }else{
-          if(this.budgetInfo[budget].amount < this.budgetInfo[this.tBudgetFrom].amount){
-            this.tBudgetTo = budget;
-          }else{
-            this.tBudgetTo = this.tBudgetFrom;
-            this.tBudgetFrom = budget;
-          }
+          this.tBudgetTo = budget;
           this.openInputBar(this.budgetInfo[budget]);
         }
       }
@@ -100,9 +98,15 @@
       }
 
       addToBudget(indexTo: number){
-        this.transferFunds(indexTo, +this.transferAmount);
-        this.transferAmount = 0;
+        this.transferFunds(indexTo, +this.transferAmount, this.tBudgetFrom);
+        this.cancelTransfer();
+      }
+
+      cancelTransfer(){
         this.showInputBar = "bar";
+        this.transferAmount = 0;
+        this.tBudgetFrom = -1;
+        this.tBudgetTo = -1;
       }
 
       mounted() {
