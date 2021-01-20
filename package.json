@@ -20,7 +20,7 @@
     "@typescript-eslint/parser": "^2.33.0",
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
-    "@vue/cli-plugin-pwa": "~4.5.0",
+    "@vue/cli-plugin-pwa": "^4.5.10",
     "@vue/cli-plugin-typescript": "~4.5.0",
     "@vue/cli-plugin-vuex": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
@@ -41,6 +41,7 @@
       "@vue/typescript/recommended"
     ],
     "parserOptions": {
+      "parser": "babel-eslint",
       "ecmaVersion": 2020
     },
     "rules": {}
