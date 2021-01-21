@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class="row">
     <h1> <i class="fas fa-chart-area"></i> Snowball</h1>
-    <canvas id="SnowBallChart"></canvas>
+    <canvas class="col-12" id="SnowBallChart"></canvas>
   </div>
 </template>
 
