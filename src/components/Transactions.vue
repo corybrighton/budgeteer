@@ -6,7 +6,9 @@
   import { Component, Vue } from 'vue-property-decorator';
 
   @Component
-  export default class Budgets extends Vue {
+  class Transactions extends Vue {
 
   }
+
+  export default Transactions;
 </script>

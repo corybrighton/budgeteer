@@ -6,7 +6,9 @@
   import { Component, Vue } from 'vue-property-decorator';
 
   @Component
-  export default class Worth extends Vue {
+  class Worth extends Vue {
 
   }
+
+  export default Worth;
 </script>
