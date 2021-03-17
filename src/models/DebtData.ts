@@ -5,4 +5,6 @@ export default interface DebtData{
   interest: number;
   introRate: number;
   introLength: number;
+  payoffOrder: number;
+  drawOnGraph: boolean;
 }

@@ -39,4 +39,8 @@ export default class App extends Vue {}
     background-color: #5a7956;
     color: white;
   }
+
+  .pointer{
+    cursor: pointer;
+  }
 </style>

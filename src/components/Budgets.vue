@@ -142,10 +142,6 @@
     border-radius: 50px;
   }
 
-  .pointer{
-    cursor: pointer;
-  }
-
   .btn-xs{
     padding: .03125rem;
     width: 2rem;
