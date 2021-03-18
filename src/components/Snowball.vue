@@ -12,7 +12,8 @@
           <h3 class="primary ml-2 mt-1">Payment Plan</h3>
         </div>
 
-        <!-- Snowball Button --Sort list of debts from smallest to largest and caluculate payoff dates -->
+        <!-- Snowball Button 
+        --Sort list of debts from smallest to largest and caluculate payoff dates -->
         <div class="primary pl-2"> Monthly Payment ${{totalMonthlyPayment}} </div>
         <div @click="changePayoffMethod('Snowball')" 
           class="pointer"
@@ -44,29 +45,40 @@
             v-else>
           </i> Custom</div>
 
-        <!-- Debts -->
+
+<!-- Test -->
+<!-- <div> {{largestAmount}}  {{longestNumberOfPayments}} </div> -->
+
+
+        <!-- List of Debts -->
         <div class="primary mt-2">
           <h3 class="primary ml-2 mt-1">My Debts</h3>
         </div>
-        <div @click="showThisDebt(Debt.debtData.name)" 
-          class="primary pointer" 
+        <div class="primary pointer" 
           v-for="(Debt, i) in DebtPayoffModelData" 
           :key="Debt.debtData.name">
-          <div class="d-flex">
+          <div @click="showThisDebt(Debt.debtData.name)" class="d-flex">
 
             <div class="ml-2">
               <div class="debtNumber secondary">{{i+1}}</div>
             </div>
             <div class="ml-2">{{Debt.debtData.name}}</div>
           </div>
-          <div class="ml-2" 
+          <div class="ml-2 secondary" 
             v-if="showDebt == Debt.debtData.name">
-            <div>
+            <div @click="showThisDebt(Debt.debtData.name)" class="mt-2">
               W/O extra: {{ finalPaymentDate(Debt.payoffWithoutAdditionalPayment) }}
             </div>
-            <div>
+            <div @click="showThisDebt(Debt.debtData.name)" class="mt-2">
               ${{Debt.debtData.amount}} @ {{Debt.debtData.interest}}% 
             </div>
+            <label class="ml-2 switch">
+              <input 
+                @click="changeGraph(Debt)" 
+                type="checkbox" 
+                v-model="Debt.debtData.drawOnGraph">
+              <span class="slider round"></span>
+            </label>
           </div>
         </div>
       </div>
@@ -94,7 +106,7 @@
     vueCanvas: any;
     canvasHeight = screen.height * 0.6;
     canvasWidth = screen.width * 0.6;
-    xAxis = Math.round(this.canvasHeight * 0.85);
+    xAxisY = Math.round(this.canvasHeight * 0.85);
     xAxisStart = Math.round(this.canvasWidth * 0.05);
     xAxisEnd = Math.round(this.canvasWidth * 0.95);
     chartHeight = Math.round(this.canvasHeight * 0.75);
@@ -196,7 +208,6 @@
       const canvas: any = document.getElementById("SnowBallChart");
       this.vueCanvas = canvas.getContext("2d");
       this.mapDebtsToDebtPayoffModels();
-      this.draw();
       this.changePayoffMethod("Custom");
       this.graphEachDebt();
     }
@@ -205,39 +216,59 @@
       this.Debts.forEach((Debt) => {
         this.totalMonthlyPayment += Debt.minimumPayment;
         const numberOfPaymentsLeft = 
-          this.numberOfPayments(Debt.amount, Debt.interest, Debt.minimumPayment)
+          this.numberOfPayments(Debt.amount, Debt.interest, Debt.minimumPayment);
+        if(numberOfPaymentsLeft < 0)
+          Debt.drawOnGraph = false;
         this.DebtPayoffModelData.push({
           debtData : Debt,
           payoffWithoutAdditionalPayment : numberOfPaymentsLeft,
           additionalPayment : 0,
           additionalPaymentStartingMonth : 0
         });
-        if(Debt.drawOnGraph){
-          if(Debt.amount > this.largestAmount) 
-            this.largestAmount = Math.ceil(Debt.amount/1000)*1000;
-          if(numberOfPaymentsLeft > this.longestNumberOfPayments) 
-            this.longestNumberOfPayments = numberOfPaymentsLeft;
+      });
+    }
+
+    changeGraph(Debt: DebtPayoffModel){
+      if(Debt.payoffWithoutAdditionalPayment < 0){
+        Debt.debtData.drawOnGraph = false;
+        return;
+      }
+      Debt.debtData.drawOnGraph = !Debt.debtData.drawOnGraph;
+      this.graphEachDebt();
+    }
+
+    findLargestAmount(){
+      this.largestAmount = 0;
+      this.longestNumberOfPayments = 0;
+      this.DebtPayoffModelData.forEach((Debt) => {
+        if(Debt.debtData.drawOnGraph){
+          if(Debt.debtData.amount > this.largestAmount) 
+            this.largestAmount = Math.ceil(Debt.debtData.amount/1000)*1000;
+          if(Debt.payoffWithoutAdditionalPayment > this.longestNumberOfPayments) 
+            this.longestNumberOfPayments = Debt.payoffWithoutAdditionalPayment;
         }
       });
-
     }
 
     graphEachDebt(){
+      this.vueCanvas.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+      this.drawCanvasBackGround()
+      this.findLargestAmount();
       this.DebtPayoffModelData.forEach(Debt =>{
         if(Debt.payoffWithoutAdditionalPayment >= 0 && Debt.debtData.drawOnGraph)
           this.drawWithoutExtra(Debt.debtData.amount, Debt.payoffWithoutAdditionalPayment);
       })
     }
 
-    draw(){
+    drawCanvasBackGround(){
       this.vueCanvas.fillStyle = "#2f4d2d ";
       this.vueCanvas.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
       this.vueCanvas.beginPath();
       this.vueCanvas.strokeStyle = "#ffcc6e";
       this.vueCanvas.lineWidth = 4;
       this.vueCanvas.lineCap = "round"
-      this.vueCanvas.moveTo(this.xAxisStart, this.xAxis);
-      this.vueCanvas.lineTo(this.xAxisEnd, this.xAxis);
+      this.vueCanvas.moveTo(this.xAxisStart, this.xAxisY);
+      this.vueCanvas.lineTo(this.xAxisEnd, this.xAxisY);
       this.vueCanvas.stroke();
     }
 
@@ -247,7 +278,7 @@
 
     convertY(y:number): number{
       return this.canvasHeight 
-      - (this.canvasHeight - this.xAxis) 
+      - (this.canvasHeight - this.xAxisY) 
       - (y / this.largestAmount) 
       * this.chartHeight;
     }
@@ -255,7 +286,7 @@
     drawWithoutExtra(startAmount: number, numberOfMonthsLeft: number){
       this.vueCanvas.beginPath();
       this.vueCanvas.moveTo(this.xAxisStart, this.convertY(startAmount));
-      this.vueCanvas.lineTo(this.convertX(numberOfMonthsLeft), this.xAxis);
+      this.vueCanvas.lineTo(this.convertX(numberOfMonthsLeft), this.xAxisY);
       this.vueCanvas.stroke();
     }
 
@@ -300,7 +331,8 @@
       const now: Date = new Date();
       date.setMonth(date.getMonth() + numberOfMonths);
       const months = 
-      ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        ["Jan", "Feb", "Mar", "Apr", "May", 
+          "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
       return (date > now) ? months[date.getMonth()]+ " " + date.getFullYear() 
       : "Debt growing faster than payment!";

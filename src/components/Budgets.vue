@@ -61,14 +61,62 @@
     tBudgetFrom = -1;
     tBudgetTo = -1;
     budgetInfo: BudgetData[] = [
-      {name: "Giving", amount: 1200, amountUsed: 158.44, lastBudgetedAmount: 1200, recurring: false}, 
-      {name: "Fixed Expenses", amount: 2610, amountUsed: 347.11, lastBudgetedAmount: 2610, recurring: true}, 
-      {name: "Debt Payment", amount: 850, amountUsed: 251.31, lastBudgetedAmount: 850, recurring: false}, 
-      {name: "Living Expenses", amount: 500, amountUsed: 455.2, lastBudgetedAmount: 500, recurring: false}, 
-      {name: "Just for Fun", amount: 500, amountUsed: 105.55, lastBudgetedAmount: 500, recurring: false}, 
-      {name: "Savings Goals", amount: 1900, amountUsed: 1830.51, lastBudgetedAmount: 1900, recurring: false}, 
-      {name: "Goals", amount: 600, amountUsed: 743.51, lastBudgetedAmount: 600, recurring: true}, 
-      {name: "Unexpected Expenses", amount: 100, amountUsed: 370.8, lastBudgetedAmount: 100, recurring: false}
+      { 
+        name: "Giving", 
+        amount: 1200, 
+        amountUsed: 158.44, 
+        lastBudgetedAmount: 1200, 
+        recurring: false
+      }, 
+      { 
+        name: "Fixed Expenses", 
+        amount: 2610, 
+        amountUsed: 347.11, 
+        lastBudgetedAmount: 2610, 
+        recurring: true
+      }, 
+      { 
+        name: "Debt Payment", 
+        amount: 850, 
+        amountUsed: 251.31, 
+        lastBudgetedAmount: 850, 
+        recurring: false
+      }, 
+      { 
+        name: "Living Expenses", 
+        amount: 500, 
+        amountUsed: 455.2, 
+        lastBudgetedAmount: 500, 
+        recurring: false
+      }, 
+      { 
+        name: "Just for Fun", 
+        amount: 500, 
+        amountUsed: 105.55, 
+        lastBudgetedAmount: 500, 
+        recurring: false
+      }, 
+      { 
+        name: "Savings Goals", 
+        amount: 1900, 
+        amountUsed: 1830.51, 
+        lastBudgetedAmount: 1900, 
+        recurring: false
+      }, 
+      { 
+        name: "Goals", 
+        amount: 600, 
+        amountUsed: 743.51, 
+        lastBudgetedAmount: 600, 
+        recurring: true
+      }, 
+      { 
+        name: "Unexpected Expenses", 
+        amount: 100, 
+        amountUsed: 370.8, 
+        lastBudgetedAmount: 100, 
+        recurring: false
+      }
       ]
 
       transferBudgetSelect(budget: number){
