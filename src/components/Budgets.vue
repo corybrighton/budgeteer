@@ -21,12 +21,22 @@
                 <i class="p-2 fas fa-plus-square"></i>
               </button>
 
-              <strong @click="addFundsToBudget(b.name)" class="px-3">${{ (b.amount - b.amountUsed).toFixed(2)}}</strong>
+              <strong @click="addFundsToBudget(b.name)" class="px-3">
+                ${{ (b.amount - b.amountUsed).toFixed(2)}}
+              </strong> 
 
               <!-- Transfer Funds to another Budget Button -->
-              <button v-if="tBudgetFrom === index" class="btn secondary btn-xs"><i class="fas fa-long-arrow-alt-right"></i></button>
-              <button v-else-if="tBudgetTo === index" class="btn secondary btn-xs"><i class="fas fa-long-arrow-alt-left"></i></button>
-              <button v-else @click="transferBudgetSelect(index)" class="btn secondary btn-xs"><i class="p-2 fas fa-exchange-alt"></i></button>
+              <button v-if="tBudgetFrom === index" 
+                class="btn secondary btn-xs">
+                <i class="fas fa-long-arrow-alt-right"></i>
+              </button>
+              <button v-else-if="tBudgetTo === index" class="btn secondary btn-xs">
+                <i class="fas fa-long-arrow-alt-left"></i>
+              </button>
+              <button v-else @click="transferBudgetSelect(index)" 
+                class="btn secondary btn-xs">
+                <i class="p-2 fas fa-exchange-alt"></i>
+              </button>
 
             </div>
 

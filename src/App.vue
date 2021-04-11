@@ -48,7 +48,7 @@ export default class App extends Vue {}
   .switch {
     position: relative;
     display: inline-block;
-    width: 44px;
+    width: 36px;
     height: 17px;
   }
 
@@ -93,9 +93,9 @@ export default class App extends Vue {}
   }
 
   input:checked + .slider:before {
-    -webkit-transform: translateX(26px);
-    -ms-transform: translateX(26px);
-    transform: translateX(26px);
+    -webkit-transform: translateX(20px);
+    -ms-transform: translateX(20px);
+    transform: translateX(20px);
   }
 
   /* Rounded sliders */

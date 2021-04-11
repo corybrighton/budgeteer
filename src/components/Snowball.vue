@@ -32,7 +32,9 @@
           <i class="far fa-money-bill-alt primary bill" 
             v-if="payoffMethod === 'Avalanche'"></i>
           <i class="fas fa-money-bill-alt secondary bill" 
-            v-else></i> Avalanche</div>
+            v-else></i> 
+            Avalanche
+        </div>
 
           <!-- Custom Button --Sort debts by custom payoffs -->
         <div class="pointer"
@@ -41,14 +43,9 @@
           <i class="far fa-money-bill-alt primary bill" 
             v-if="payoffMethod === 'Custom'">
           </i>
-          <i class="fas fa-money-bill-alt secondary bill" 
-            v-else>
-          </i> Custom</div>
-
-
-<!-- Test -->
-<!-- <div> {{largestAmount}}  {{longestNumberOfPayments}} </div> -->
-
+          <i class="fas fa-money-bill-alt secondary bill" v-else></i> 
+          Custom
+        </div>
 
         <!-- List of Debts -->
         <div class="primary mt-2">
@@ -66,11 +63,14 @@
           </div>
           <div class="ml-2 secondary" 
             v-if="showDebt == Debt.debtData.name">
-            <div @click="showThisDebt(Debt.debtData.name)" class="mt-2">
+            <div @click="showThisDebt(Debt.debtData.name)" class="mt-2 ml-2">
               W/O extra: {{ finalPaymentDate(Debt.payoffWithoutAdditionalPayment) }}
             </div>
             <div @click="showThisDebt(Debt.debtData.name)" class="mt-2">
-              ${{Debt.debtData.amount}} @ {{Debt.debtData.interest}}% 
+              <p class="ml-2">${{Debt.debtData.amount}} @ {{Debt.debtData.interest}}% </p>
+              <p class="ml-2">will take {{Debt.numberOfPayments}} </p>
+              <p class="ml-2">which is {{finalPaymentDate(Debt.numberOfPayments)}}</p>
+              <p class="ml-2">at a cost of {{ Debt.totalInterest }}</p>
             </div>
             <label class="ml-2 switch">
               <input 
@@ -107,7 +107,7 @@
     canvasHeight = screen.height * 0.6;
     canvasWidth = screen.width * 0.6;
     xAxisY = Math.round(this.canvasHeight * 0.85);
-    xAxisStart = Math.round(this.canvasWidth * 0.05);
+    xAxisStart = Math.round(this.canvasWidth * 0.1);
     xAxisEnd = Math.round(this.canvasWidth * 0.95);
     chartHeight = Math.round(this.canvasHeight * 0.75);
     chartWidth = Math.round(this.canvasWidth * 0.85);
@@ -215,21 +215,22 @@
     mapDebtsToDebtPayoffModels(){
       this.Debts.forEach((Debt) => {
         this.totalMonthlyPayment += Debt.minimumPayment;
-        const numberOfPaymentsLeft = 
-          this.numberOfPayments(Debt.amount, Debt.interest, Debt.minimumPayment);
-        if(numberOfPaymentsLeft < 0)
-          Debt.drawOnGraph = false;
         this.DebtPayoffModelData.push({
           debtData : Debt,
-          payoffWithoutAdditionalPayment : numberOfPaymentsLeft,
           additionalPayment : 0,
-          additionalPaymentStartingMonth : 0
+          additionalPaymentStartingMonth : 0,
+          totalInterest: 0,
+          totalInterestWithPlan: 0,
+          numberOfPayments: 0,
+          numberOfPaymentsWithPlan: 0
         });
+        this.countPaymentsAndInterest(
+            this.DebtPayoffModelData[this.DebtPayoffModelData.length-1]);
       });
     }
 
     changeGraph(Debt: DebtPayoffModel){
-      if(Debt.payoffWithoutAdditionalPayment < 0){
+      if(Debt.numberOfPayments < 0){
         Debt.debtData.drawOnGraph = false;
         return;
       }
@@ -243,9 +244,9 @@
       this.DebtPayoffModelData.forEach((Debt) => {
         if(Debt.debtData.drawOnGraph){
           if(Debt.debtData.amount > this.largestAmount) 
-            this.largestAmount = Math.ceil(Debt.debtData.amount/1000)*1000;
-          if(Debt.payoffWithoutAdditionalPayment > this.longestNumberOfPayments) 
-            this.longestNumberOfPayments = Debt.payoffWithoutAdditionalPayment;
+            this.largestAmount = Math.ceil(Debt.debtData.amount / 1000) * 1000;
+          if(Debt.numberOfPayments > this.longestNumberOfPayments) 
+            this.longestNumberOfPayments = Debt.numberOfPayments;
         }
       });
     }
@@ -255,39 +256,50 @@
       this.drawCanvasBackGround()
       this.findLargestAmount();
       this.DebtPayoffModelData.forEach(Debt =>{
-        if(Debt.payoffWithoutAdditionalPayment >= 0 && Debt.debtData.drawOnGraph)
-          this.drawWithoutExtra(Debt.debtData.amount, Debt.payoffWithoutAdditionalPayment);
+        if(Debt.numberOfPayments >= 0 && Debt.debtData.drawOnGraph)
+          this.drawWithoutExtra(Debt.debtData.name, 
+            Debt.debtData.amount, 
+            Debt.numberOfPayments);
       })
     }
 
     drawCanvasBackGround(){
-      this.vueCanvas.fillStyle = "#2f4d2d ";
+      this.vueCanvas.fillStyle = "#2f4d2d";
       this.vueCanvas.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
       this.vueCanvas.beginPath();
       this.vueCanvas.strokeStyle = "#ffcc6e";
       this.vueCanvas.lineWidth = 4;
-      this.vueCanvas.lineCap = "round"
+      this.vueCanvas.lineCap = "round";
       this.vueCanvas.moveTo(this.xAxisStart, this.xAxisY);
       this.vueCanvas.lineTo(this.xAxisEnd, this.xAxisY);
       this.vueCanvas.stroke();
     }
 
     convertX(x:number): number{
-      return (x / this.longestNumberOfPayments)*this.chartWidth + this.xAxisStart;
+      return (x / this.longestNumberOfPayments) 
+      * this.chartWidth + this.xAxisStart;
     }
 
     convertY(y:number): number{
       return this.canvasHeight 
       - (this.canvasHeight - this.xAxisY) 
-      - (y / this.largestAmount) 
-      * this.chartHeight;
+      - (y / this.largestAmount) * this.chartHeight;
     }
 
-    drawWithoutExtra(startAmount: number, numberOfMonthsLeft: number){
+    drawWithoutExtra(debtName:string, startAmount: number, numberOfMonthsLeft: number){
+      const yStart = this.convertY(startAmount);
+      const xEnd = this.convertX(numberOfMonthsLeft);
       this.vueCanvas.beginPath();
-      this.vueCanvas.moveTo(this.xAxisStart, this.convertY(startAmount));
-      this.vueCanvas.lineTo(this.convertX(numberOfMonthsLeft), this.xAxisY);
+      this.vueCanvas.moveTo(this.xAxisStart, yStart);
+      this.vueCanvas.lineTo(xEnd, this.xAxisY);
       this.vueCanvas.stroke();
+      this.vueCanvas.font = "10px Comic Sans MS";
+      this.vueCanvas.fillStyle = "#ffcc6e";
+      this.vueCanvas.textAlign = "end";
+      this.vueCanvas.fillText(debtName, this.xAxisStart - 10, yStart);
+      const finalDate:string[] = this.finalPaymentDate(numberOfMonthsLeft).split(" ");
+      this.vueCanvas.fillText(finalDate[0], xEnd, this.xAxisY+20);
+      this.vueCanvas.fillText(finalDate[1], xEnd, this.xAxisY+35);
     }
 
     changePayoffMethod(payoffMethod: string){
@@ -308,22 +320,18 @@
       this.payoffMethod = payoffMethod;
     }
 
-    numberOfPayments(amount: number, 
-                    interest: number, 
-                    payment: number, 
-                    additionalPayment: number = 0, 
-                    monthAddedAddionalPayment: number = 0): number {
-      let count = 0;
+    countPaymentsAndInterest(Debt: DebtPayoffModel){
+      let amount = Debt.debtData.amount;
       while (amount >= 0) {
-        count++;
         const previousAmount = amount;
-        amount = (count >= monthAddedAddionalPayment) ? 
-        amount + this.interestIncrease(amount, interest / 100) 
-        - (payment + additionalPayment) : 
-        amount + this.interestIncrease(amount, interest/100) - payment;
-        if(amount > previousAmount) return -1;
+        const increaseInInterest = 
+          this.interestIncrease(amount, Debt.debtData.interest);
+
+        Debt.numberOfPayments++;
+        Debt.totalInterest += increaseInInterest;
+        amount += (increaseInInterest - Debt.debtData.minimumPayment);
+        if(amount > previousAmount) return;
       }
-      return count;
     }
 
     finalPaymentDate(numberOfMonths: number): string{
@@ -334,12 +342,13 @@
         ["Jan", "Feb", "Mar", "Apr", "May", 
           "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-      return (date > now) ? months[date.getMonth()]+ " " + date.getFullYear() 
-      : "Debt growing faster than payment!";
+      return (date > now) ? 
+        months[date.getMonth()] + " " + date.getFullYear() 
+        : "Debt growing faster than payment!";
     }
 
     interestIncrease(amount: number, interest: number): number {
-      return amount * interest / 12;
+      return (amount * (interest * 0.01) / 12);
     }
 
     showThisDebt(debtName: string){
