@@ -59,7 +59,7 @@
 
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator';
-  import BudgetData from '../models/BudgetData';
+  import BudgetData from '../store/BudgetData/BudgetData';
 
   @Component
   export default class Budgets extends Vue {
@@ -70,6 +70,10 @@
     transferAmount = 0;
     tBudgetFrom = -1;
     tBudgetTo = -1;
+
+    get budgetState(): BudgetData[]{
+      return this.$store.getters.getBudgetData;
+    }
     budgetInfo: BudgetData[] = [
       { 
         name: "Giving", 

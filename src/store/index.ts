@@ -1,9 +1,12 @@
 import Vue from 'vue'
-import Vuex from 'vuex'
+import Vuex, { StoreOptions } from 'vuex'
+import { RootState } from './types';
+import { BudgetState } from './BudgetData/index';
+import { DebtState } from './DebtState/index';
 
 Vue.use(Vuex)
 
-export default new Vuex.Store({
+const store: StoreOptions<RootState> = {
   state: {
   },
   mutations: {
@@ -11,5 +14,9 @@ export default new Vuex.Store({
   actions: {
   },
   modules: {
+    DebtState,
+    BudgetState
   }
-})
+}
+
+export default new Vuex.Store<RootState>(store);
