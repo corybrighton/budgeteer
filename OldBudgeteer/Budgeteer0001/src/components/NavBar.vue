@@ -18,13 +18,13 @@
       </div>
     </div>
 
-    <Budgets v-if="activePage == 'Budgets'" />
-    <Transactions v-else-if="activePage == 'Transactions'" />
-    <Banks v-else-if="activePage == 'Banks'" />
-    <Balance v-else-if="activePage == 'Balance'" />
-    <Spending v-else-if="activePage == 'Spending'" />
-    <Worth v-else-if="activePage == 'Worth'" />
-    <Snowball v-else-if="activePage == 'Snowball'" />
+    <Budgets v-if="ActivePage == 'Budgets'" />
+    <Transactions v-else-if="ActivePage == 'Transactions'" />
+    <Banks v-else-if="ActivePage == 'Banks'" />
+    <Balance v-else-if="ActivePage == 'Balance'" />
+    <Spending v-else-if="ActivePage == 'Spending'" />
+    <Worth v-else-if="ActivePage == 'Worth'" />
+    <Snowball v-else-if="ActivePage == 'Snowball'" />
   </div>
 </template>
 
@@ -50,7 +50,7 @@ import Snowball from "./Snowball.vue";
   },
 })
 export default class NavBar extends Vue {
-  private activePage = "Snowball";
+  private ActivePage = "Snowball";
   private isNavOpen = false;
   private navigate = [
     {
@@ -83,7 +83,7 @@ export default class NavBar extends Vue {
     }]
 
   public navToPage(newPage: string): void {
-    this.activePage = newPage;
+    this.ActivePage = newPage;
     this.isNavOpen = false;
   }
 

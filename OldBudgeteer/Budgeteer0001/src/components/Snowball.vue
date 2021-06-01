@@ -14,7 +14,18 @@
 
         <!-- Snowball Button 
         --Sort list of debts from smallest to largest and caluculate payoff dates -->
-        <div class="primary pl-2"> Monthly Payment ${{totalMonthlyPayment}} </div>
+        <div class="primary pl-2"> 
+          <div>Monthly Payment ${{formatPrice(totalMonthlyPayment)}} </div>
+          <div>Total interest ${{formatPrice(overAllTotalInterest)}}</div>
+          <div>
+            Total interest with {{payoffMethod}} 
+            plan ${{formatPrice(overAllTotalInterestWithPlan)}}
+          </div>
+          <div>
+            Saving ${{formatPrice(overAllTotalInterest-overAllTotalInterestWithPlan)}}
+          </div>
+        </div>
+
         <div @click="changePayoffMethod('Snowball')" 
           class="pointer"
           :class="payoffMethod === 'Snowball' ? 'secondary' : 'primary'">
@@ -67,7 +78,7 @@
                 class="mt-2" 
                 v-if="Debt.numberOfPayments > 0">
               <div class="ml-2">
-                ${{Debt.debtData.amount}} @ {{Debt.debtData.interest}}% 
+                ${{formatPrice(Debt.debtData.amount)}} @ {{Debt.debtData.interest}}% 
               </div>
               <div class="ml-2">
                 will take {{Debt.numberOfPayments}} 
@@ -76,7 +87,16 @@
                 which is {{finalPaymentDate(Debt.numberOfPayments)}}
               </div>
               <div class="ml-2">
-                at a cost of ${{ Debt.totalInterest.toFixed(2) }}
+                at a cost of ${{ formatPrice(Debt.totalInterest) }}
+              </div>
+              <div class="ml-2">
+                With Payoff Method {{ payoffMethod }}
+              </div>
+              <div class="ml-2">
+                will take {{Debt.numberOfPaymentsWithPlan}}
+              </div>
+              <div class="ml-2">
+                at a cost of ${{formatPrice(Debt.totalInterestWithPlan)}}
               </div>
             </div>
             <div @click="showThisDebt(Debt.debtData.name)" 
@@ -104,6 +124,9 @@
         :height="canvasHeight" 
         :width="canvasWidth">
       </canvas>
+      <div v-if="process.env.VUE_APP_dev">
+        Hello world
+      </div>
     </div>
   </div>
 </template>
@@ -128,8 +151,9 @@
     largestAmount = 0;
     longestNumberOfPayments = 0;
     payoffMethod: string = "Custom";
-    extraForPayoff: number = 0;
     totalMonthlyPayment: number = 0;
+    overAllTotalInterest: number = 0;
+    overAllTotalInterestWithPlan: number = 0;
     DebtPayoffModelData: DebtPayoffModel[] = [];
     showDebt = "";
 
@@ -143,31 +167,49 @@
       this.mapDebtsToDebtPayoffModels();
       this.changePayoffMethod("Custom");
       this.graphEachDebt();
+      this.DebtPayoffModelData.forEach(Debt => {
+        this.overAllTotalInterest += Debt.totalInterest;
+      });
+    }
+
+    findPlanSavings(){
+      let monthBegin = 0;
+      let addPayment = 0;
+      this.overAllTotalInterestWithPlan = 0;
+      this.DebtPayoffModelData.forEach((Debt, index) => {
+        if(Debt.numberOfPayments > monthBegin){
+          Debt.addPaymentBegins = monthBegin;
+          addPayment += Debt.debtData.minimumPayment;
+          Debt.addPayment = addPayment;
+          Debt.findPaymentsAndInterestWithPlan();
+          monthBegin = Debt.numberOfPaymentsWithPlan;
+        }else if(index >= 1){
+          addPayment = Debt.debtData.minimumPayment;
+        } else {
+          Debt.numberOfPaymentsWithPlan = Debt.numberOfPayments;
+          Debt.totalInterestWithPlan = Debt.totalInterest;
+          Debt.addPayment += Debt.debtData.minimumPayment;
+        }
+        this.overAllTotalInterestWithPlan += Debt.totalInterestWithPlan;
+      });
+    }
+
+    formatPrice(value: number): string {
+      const val = (value/1).toFixed(2);
+      return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
 
     mapDebtsToDebtPayoffModels(){
       this.Debts.forEach((Debt) => {
         this.totalMonthlyPayment += Debt.minimumPayment;
-        this.DebtPayoffModelData.push({
-          debtData : Debt,
-          additionalPayment : 0,
-          additionalPaymentStartingMonth : 0,
-          totalInterest: 0,
-          totalInterestWithPlan: 0,
-          numberOfPayments: 0,
-          numberOfPaymentsWithPlan: 0
-        });
-        this.countPaymentsAndInterest(
-            this.DebtPayoffModelData[this.DebtPayoffModelData.length-1]);
+        this.DebtPayoffModelData.push(new DebtPayoffModel(Debt));
       });
     }
 
     changeGraph(Debt: DebtPayoffModel){
-      if(Debt.numberOfPayments < 0){
-        Debt.debtData.drawOnGraph = false;
-        return;
-      }
-      Debt.debtData.drawOnGraph = !Debt.debtData.drawOnGraph;
+      Debt.debtData.drawOnGraph = (Debt.numberOfPayments < 0)? 
+      false: 
+      !Debt.debtData.drawOnGraph;
       this.graphEachDebt();
     }
 
@@ -188,12 +230,31 @@
       this.vueCanvas.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
       this.drawCanvasBackGround()
       this.findLargestAmount();
-      this.DebtPayoffModelData.forEach(Debt =>{
+      const l = this.DebtPayoffModelData.length;
+      for(let i = 0; i < l; i++){
+        const Debt = this.DebtPayoffModelData[i];
         if(Debt.numberOfPayments >= 0 && Debt.debtData.drawOnGraph)
           this.drawWithoutExtra(Debt.debtData.name, 
             Debt.debtData.amount, 
             Debt.numberOfPayments);
-      })
+          if(i + 1 < l)
+            this.graphDebtExtraPayment(Debt.numberOfPaymentsWithPlan, 15000);
+      }
+    }
+
+    graphDebtExtraPayment(end: number, debtY: number){
+      const x = this.convertX(end);
+      const y = this.convertY(debtY);
+      this.vueCanvas.beginPath();
+      this.vueCanvas.lineCap = "butt";
+      this.vueCanvas.lineWidth = 2;
+      this.vueCanvas.setLineDash([5, 5]);
+      this.vueCanvas.moveTo(x, this.xAxisY);
+      this.vueCanvas.lineTo(x, y);
+      this.vueCanvas.stroke();
+      this.vueCanvas.lineCap = "round";
+      this.vueCanvas.lineWidth = 4;
+      this.vueCanvas.setLineDash([]);
     }
 
     drawCanvasBackGround(){
@@ -238,6 +299,8 @@
     }
 
     changePayoffMethod(payoffMethod: string){
+      this.overAllTotalInterestWithPlan = 0;
+
       switch(payoffMethod){
         case "Snowball":
           this.DebtPayoffModelData.sort(
@@ -253,25 +316,8 @@
           break;
       }
       this.payoffMethod = payoffMethod;
-    }
-
-    countPaymentsAndInterest(Debt: DebtPayoffModel){
-      let amount = Debt.debtData.amount;
-      while (amount >= 0) {
-        const previousAmount = amount;
-        const increaseInInterest = 
-          this.interestIncrease(amount, Debt.debtData.interest);
-
-        Debt.numberOfPayments++;
-        Debt.totalInterest += increaseInInterest;
-        amount += (increaseInInterest - Debt.debtData.minimumPayment);
-        if(amount > previousAmount) {
-          Debt.numberOfPayments = -1;
-          Debt.debtData.drawOnGraph = false;
-          return;
-        }
-      }
-    }
+      this.findPlanSavings();
+    } 
 
     finalPaymentDate(numberOfMonths: number): string{
       const date: Date = new Date();
@@ -284,10 +330,6 @@
       return (date > now) ? 
         months[date.getMonth()] + " " + date.getFullYear() 
         : "Debt growing faster than payment!";
-    }
-
-    interestIncrease(amount: number, interest: number): number {
-      return (amount * (interest * 0.01) / 12);
     }
 
     showThisDebt(debtName: string){
